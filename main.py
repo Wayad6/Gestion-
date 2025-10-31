@@ -27,7 +27,7 @@ if 'delete_confirm_id' not in st.session_state:
 # --- Sidebar navigation ---
 page = st.sidebar.selectbox(
     "Navigation",
-    ["Produits", "Ventes", "Achats", "Dépenses", "Tableau de bord", "Paramètres"]
+    ["Tableau de bord", "Produits", "Ventes", "Achats", "Dépenses", "Paramètres"]
 )
 
 # ---------- PRODUITS ----------
