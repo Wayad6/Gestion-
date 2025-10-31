@@ -224,3 +224,26 @@ def get_all_achats_dict():
 
 def get_all_depenses_dict():
     return [dict(r) for r in get_depenses(100000)]
+
+def reset_database(confirm=False):
+    """
+    Supprime toutes les données (produits, ventes, achats, dépenses)
+    sans supprimer la structure des tables.
+    Utiliser confirm=True pour exécuter réellement.
+    """
+    if not confirm:
+        print("⚠️  Appel ignoré : utilisez reset_database(confirm=True) pour confirmer la suppression.")
+        return
+
+    c = _get_conn()
+    cur = c.cursor()
+    cur.executescript("""
+        DELETE FROM ventes;
+        DELETE FROM achats;
+        DELETE FROM depenses;
+        DELETE FROM produits;
+        VACUUM;
+    """)
+    c.commit()
+    c.close()
+    print("✅ Base de données entièrement vidée.")
