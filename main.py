@@ -2,7 +2,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 import db
 import utils
@@ -10,23 +10,25 @@ import utils
 st.set_page_config(page_title="Gestionnaire Ventes & Stocks", layout="wide")
 st.title("Gestionnaire de ventes & stocks — dh")
 
-# Init DB
+# --- Initialisation DB ---
 db.init_db()
 LOW_STOCK_THRESHOLD = 5  # seuil fixe
 
-# helpers
+# --- Helpers ---
 def rows_to_df(rows):
     if not rows:
         return pd.DataFrame()
     return pd.DataFrame([dict(r) for r in rows])
 
-# Sidebar navigation
+# --- Sidebar navigation ---
 page = st.sidebar.radio("Navigation", ["Tableau de bord", "Produits", "Ventes", "Achats", "Dépenses"])
 
 # ---------- PRODUITS ----------
 if page == "Produits":
     st.header("📦 Produits")
     col1, col2 = st.columns([2,1])
+
+    # --- Ajouter / Mettre à jour produit ---
     with col1:
         st.subheader("Ajouter / Mettre à jour un produit")
         nom = st.text_input("Nom du produit")
@@ -34,18 +36,21 @@ if page == "Produits":
         stock = st.number_input("Stock à ajouter (unités)", min_value=0, value=0, step=1)
         prix_achat = st.number_input("Prix d'achat unitaire (dh)", min_value=0.0, value=0.0, format="%.2f")
         prix_vente = st.number_input("Prix de vente unitaire (dh)", min_value=0.0, value=0.0, format="%.2f")
+        
         if st.button("Enregistrer produit"):
             if not nom.strip():
                 st.error("Le nom du produit est requis.")
             else:
                 db.add_or_update_produit(nom.strip(), categorie.strip(), int(stock), float(prix_achat), float(prix_vente))
                 st.success(f"Produit '{nom}' enregistré.")
-                
                 st.rerun()
+
+    # --- Catalogue et suppression ---
     with col2:
         st.subheader("Catalogue")
         prods = db.get_produits()
         dfp = rows_to_df(prods)
+
         if dfp.empty:
             st.info("Aucun produit enregistré.")
         else:
@@ -53,18 +58,22 @@ if page == "Produits":
             st.dataframe(dfp[["id","nom","categorie","stock","prix_achat","prix_vente","total_vendu","total_revenu","alerte_stock"]], height=420)
 
         st.markdown("**Actions rapides**")
-        if not prods:
-            st.info("Aucun produit pour actions rapides.")
-        else:
+        if prods:
             prod_ids = [p["id"] for p in prods]
             sel = st.selectbox("Sélectionner produit (id)", options=prod_ids, format_func=lambda x: f"{x} — {db.get_produit_by_id(x)['nom']}")
-            if st.button("Supprimer le produit"):
-                if st.button(f"🗑️ Supprimer le produit ID {sel}"):
-                   st.warning(f"Confirmez la suppression du produit ID {sel}")
-    if st.button("✅ Confirmer la suppression"):
-        supprimer_produit(sel)
-        st.success(f"Produit ID {sel} supprimé avec succès.")
-        st.rerun()
+            
+            # Bouton pour lancer la suppression
+            supprimer_click = st.button(f"🗑️ Supprimer le produit ID {sel}")
+            
+            if supprimer_click:
+                st.warning(f"Confirmez la suppression du produit ID {sel}")
+                confirmer_click = st.button("✅ Confirmer la suppression")
+                
+                if confirmer_click:
+                    db.delete_produit(sel)
+                    st.success(f"Produit ID {sel} supprimé avec succès.")
+                    st.rerun()
+
 # ---------- VENTES ----------
 elif page == "Ventes":
     st.header("💰 Enregistrer une vente")
@@ -140,7 +149,6 @@ elif page == "Tableau de bord":
     elif view == "Mois":
         first = today.replace(day=1)
         from_date = st.date_input("Début mois", value=first)
-        # dernier jour du mois
         next_month = (first.replace(day=28) + timedelta(days=4)).replace(day=1)
         last = next_month - timedelta(days=1)
         to_date = st.date_input("Fin mois", value=last)
