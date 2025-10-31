@@ -55,35 +55,49 @@ with col2:
         st.info("Aucun produit enregistré.")
     else:
         dfp["alerte_stock"] = dfp["stock"] <= LOW_STOCK_THRESHOLD
-        st.dataframe(
-            dfp[["id","nom","categorie","stock","prix_achat","prix_vente","total_vendu","total_revenu","alerte_stock"]],
-            height=420
-        )
+        st.dataframe(dfp[["id","nom","categorie","stock","prix_achat","prix_vente","total_vendu","total_revenu","alerte_stock"]], height=420)
 
     st.markdown("**Actions rapides**")
     if prods:
         prod_ids = [p["id"] for p in prods]
-        sel = st.selectbox(
-            "Sélectionner produit (id)",
-            options=prod_ids,
-            format_func=lambda x: f"{x} — {db.get_produit_by_id(x)['nom']}"
-        )
+        
+        # 1. Initialiser l'état de session pour la confirmation de suppression
+        if 'delete_confirm_id' not in st.session_state:
+            st.session_state['delete_confirm_id'] = None
 
-        # Initialise session_state pour confirmation
-        if "confirm_delete" not in st.session_state:
-            st.session_state.confirm_delete = False
+        # 2. Sélection du produit
+        sel = st.selectbox("Sélectionner produit (id)", 
+                           options=prod_ids, 
+                           format_func=lambda x: f"{x} — {db.get_produit_by_id(x)['nom']}", 
+                           key="prod_select_delete" # Ajout d'une clé pour éviter des conflits
+                          )
 
-        # Bouton pour lancer la suppression
-        if st.button(f"🗑️ Supprimer le produit ID {sel}"):
-            st.session_state.confirm_delete = True
+        # Gérer la confirmation de suppression
+        if st.session_state['delete_confirm_id'] == sel:
+            # ÉTAPE 2 : Confirmation demandée pour ce produit
+            st.warning(f"⚠️ **Voulez-vous vraiment supprimer** le produit ID {sel} ? Cette action est irréversible.")
+            
+            col_confirm, col_cancel = st.columns(2)
+            
+            with col_confirm:
+                if st.button("✅ Confirmer la suppression", key="btn_confirm_del"):
+                    # Exécution de la suppression
+                    db.delete_produit(sel)
+                    st.success(f"Produit ID **{sel}** supprimé avec succès.")
+                    st.session_state['delete_confirm_id'] = None # Réinitialiser l'état
+                    st.rerun()
+            
+            with col_cancel:
+                if st.button("❌ Annuler", key="btn_cancel_del"):
+                    st.session_state['delete_confirm_id'] = None # Réinitialiser l'état
+                    st.info("Suppression annulée.")
+                    st.rerun()
 
-        # Confirmation de suppression
-        if st.session_state.confirm_delete:
-            st.warning(f"Confirmez la suppression du produit ID {sel}")
-            if st.button("✅ Confirmer la suppression"):
-                db.delete_produit(sel)
-                st.success(f"Produit ID {sel} supprimé avec succès.")
-                st.session_state.confirm_delete = False
+        else:
+            # ÉTAPE 1 : Bouton initial de suppression
+            if st.button(f"🗑️ Supprimer le produit ID {sel}", key="btn_supprimer"):
+                # Mettre l'ID dans l'état de session et relancer pour afficher la confirmation
+                st.session_state['delete_confirm_id'] = sel
                 st.rerun()
 
 # ---------- VENTES ----------
