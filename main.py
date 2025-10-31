@@ -25,7 +25,10 @@ if 'delete_confirm_id' not in st.session_state:
     st.session_state['delete_confirm_id'] = None
     
 # --- Sidebar navigation ---
-page = st.sidebar.radio("Navigation", ["Tableau de bord", "Produits", "Ventes", "Achats", "Dépenses"])
+page = st.sidebar.selectbox(
+    "Navigation",
+    ["Produits", "Ventes", "Achats", "Dépenses", "Tableaux de bord", "Paramètres"]
+)
 
 # ---------- PRODUITS ----------
 if page == "Produits":
