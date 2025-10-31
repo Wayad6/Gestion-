@@ -80,7 +80,7 @@ elif page == "Ventes":
             pid = prod_map[choix]
             db.add_vente(pid, int(qte), float(prix), date_input.strftime("%Y-%m-%d"))
             st.success(f"Vente : {qte} × {choix} enregistrée.")
-            st.experimental_rerun()
+            st.rerun()
     st.markdown("---")
     st.subheader("Ventes récentes")
     ventes = db.get_ventes(limit=200)
