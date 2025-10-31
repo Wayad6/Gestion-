@@ -8,7 +8,7 @@ import db
 import utils
 
 st.set_page_config(page_title="Gestionnaire Ventes & Stocks", layout="wide")
-st.title("💼 Gestionnaire de ventes & stocks — dh")
+st.title("Gestionnaire de ventes & stocks — dh")
 
 # Init DB
 db.init_db()
