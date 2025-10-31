@@ -40,7 +40,8 @@ if page == "Produits":
             else:
                 db.add_or_update_produit(nom.strip(), categorie.strip(), int(stock), float(prix_achat), float(prix_vente))
                 st.success(f"Produit '{nom}' enregistré.")
-                st.experimental_rerun()
+                
+                st.rerun()
     with col2:
         st.subheader("Catalogue")
         prods = db.get_produits()
