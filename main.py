@@ -4,7 +4,6 @@ import pandas as pd
 import plotly.express as px
 from datetime import date, timedelta
 
-# Assurez-vous que 'db' et 'utils' sont correctement dans le même répertoire ou chemin
 import db
 import utils
 
