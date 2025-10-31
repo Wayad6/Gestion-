@@ -62,7 +62,7 @@ if page == "Produits":
                 if st.confirm(f"Supprimer le produit id={sel} ?"):
                     db.delete_produit(sel)
                     st.success("Produit supprimé.")
-                    st.experimental_rerun()
+                    st.rerun()
 
 # ---------- VENTES ----------
 elif page == "Ventes":
@@ -102,7 +102,7 @@ elif page == "Achats":
             pid = prod_map[choix]
             db.add_achat(pid, int(qte), float(prix), date_input.strftime("%Y-%m-%d"))
             st.success(f"Achat : {qte} × {choix} ajouté.")
-            st.experimental_rerun()
+            st.rerun()
     st.markdown("---")
     st.subheader("Achats récents")
     achats = db.get_achats(limit=200)
@@ -118,7 +118,7 @@ elif page == "Dépenses":
     if st.button("Ajouter dépense"):
         db.add_depense(typ, float(montant), desc, date_input.strftime("%Y-%m-%d"))
         st.success("Dépense ajoutée.")
-        st.experimental_rerun()
+        st.rerun()
     st.markdown("---")
     st.subheader("Dépenses récentes")
     deps = db.get_depenses(limit=200)
