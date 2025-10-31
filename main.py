@@ -60,7 +60,7 @@ if page == "Produits":
             sel = st.selectbox("Sélectionner produit (id)", options=prod_ids, format_func=lambda x: f"{x} — {db.get_produit_by_id(x)['nom']}")
             if st.button("Supprimer le produit"):
                 if st.button(f"🗑️ Supprimer le produit ID {sel}"):
-    st.warning(f"Confirmez la suppression du produit ID {sel}")
+                   st.warning(f"Confirmez la suppression du produit ID {sel}")
     if st.button("✅ Confirmer la suppression"):
         supprimer_produit(sel)
         st.success(f"Produit ID {sel} supprimé avec succès.")
