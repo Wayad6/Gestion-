@@ -210,3 +210,18 @@ elif page == "Tableau de bord":
         st.subheader(f"Alerte stock faible (≤ {LOW_STOCK_THRESHOLD} unités)")
         low = db.get_produits_stock_below(LOW_STOCK_THRESHOLD)
         st.dataframe(rows_to_df(low))
+
+elif page == "Paramètres":
+    st.title("⚙️ Paramètres et maintenance")
+
+    st.warning("⚠️ Cette action supprimera TOUTES les données (produits, ventes, achats, dépenses).")
+    reset_click = st.button("🧹 Réinitialiser complètement la base de données")
+
+    if reset_click:
+        st.error("Confirmez la suppression ci-dessous pour éviter les erreurs.")
+        confirm_reset = st.button("✅ Oui, effacer toutes les données")
+
+        if confirm_reset:
+            db.reset_database(confirm=True)
+            st.success("✅ Base de données réinitialisée avec succès !")
+            st.rerun()
